@@ -4,17 +4,17 @@ import cv2 as cv
 import numpy as np
 
 
-src1 = cv.imread('1.jpg')
+imgSrc1 = cv.imread('1.jpg')
 src2 = cv.imread('2.jpg')
 #グレースケール化
-src1Gray = cv.cvtColor(src1, cv.COLOR_BGR2GRAY)
-src2Gray = cv.cvtColor(src2, cv.COLOR_BGR2GRAY)
+imgSrc1Gray = cv.cvtColor(imgSrc1, cv.COLOR_BGR2GRAY)
+imgSrc2Gray = cv.cvtColor(src2, cv.COLOR_BGR2GRAY)
 
 # 特徴点  kp1, kp2
 # 特徴量記述子  des1, des2
 akaze = cv.AKAZE_create()
-kp1, des1 = akaze.detectAndCompute(src1Gray, None)
-kp2, des2 = akaze.detectAndCompute(src2Gray, None)
+kp1, des1 = akaze.detectAndCompute(imgSrc1Gray, None)
+kp2, des2 = akaze.detectAndCompute(imgSrc2Gray, None)
 
 # 特徴量をBFMatcher（総当り）でマッチング。
 # knnMatchで上位k = 3つのマッチング結果をmatchesに格納
@@ -39,20 +39,20 @@ else:
 
 # ホモグラフィ行列で画像(src2)を移動
 # 画像を拡大し、射影変換に対応する
-src2_warped = cv.warpPerspective(src2, H, (src1.shape[1] + src2.shape[1], src1.shape[0] + src2.shape[0]))
+src2_warped = cv.warpPerspective(src2, H, (imgSrc1.shape[1] + src2.shape[1], imgSrc1.shape[0] + src2.shape[0]))
 
 img_stitched = src2_warped.copy()
-# img_stitchedの(0 ~ src1.width, 0 ~ src1.height) にsrc1を貼り付ける。 copyToみたいな？
-img_stitched[0:src1.shape[0], 0:src1.shape[1]] = src1
+# img_stitchedの(0 ~ imgSrc1.width, 0 ~ imgSrc1.height) にimgSrc1を貼り付ける。 copyToみたいな？
+img_stitched[0:imgSrc1.shape[0], 0:imgSrc1.shape[1]] = imgSrc1
 
 
 # 特徴点を出力
 # cv.imwrite('drawKeypoints.jpg', cv.drawKeypoints(src2, kp2, None))
 
 # マッチング結果を出力
-cv.imwrite('drawMatches.jpg', cv.drawMatches(src2, kp2, src1, kp1, goods, None))
+cv.imwrite('drawMatches.jpg', cv.drawMatches(src2, kp2, imgSrc1, kp1, goods, None))
 # 何故か出来ない
-# cv.imwrite('drawMatches.jpg', cv.drawMatches(src1, kp1, src2, kp2, goods, None))
+# cv.imwrite('drawMatches.jpg', cv.drawMatches(imgSrc1, kp1, src2, kp2, goods, None))
 
 # ホモグラフィ行列で移動したsrc2を出力
 cv.imwrite('drawsrc2_warped.jpg', src2_warped)
