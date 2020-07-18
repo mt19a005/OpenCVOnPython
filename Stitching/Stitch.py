@@ -5,10 +5,10 @@ import numpy as np
 
 
 imgSrc1 = cv.imread('1.jpg')
-src2 = cv.imread('2.jpg')
+imgSrc2 = cv.imread('2.jpg')
 #グレースケール化
 imgSrc1Gray = cv.cvtColor(imgSrc1, cv.COLOR_BGR2GRAY)
-imgSrc2Gray = cv.cvtColor(src2, cv.COLOR_BGR2GRAY)
+imgSrc2Gray = cv.cvtColor(imgSrc2, cv.COLOR_BGR2GRAY)
 
 # 特徴点  kp1, kp2
 # 特徴量記述子  des1, des2
@@ -37,25 +37,25 @@ else:
     print('Not enought matches are found - {}/{}'.format(len(goods), MIN_MATCH_COUNT))
     exit(1)
 
-# ホモグラフィ行列で画像(src2)を移動
+# ホモグラフィ行列で画像(imgSrc2)を移動
 # 画像を拡大し、射影変換に対応する
-src2_warped = cv.warpPerspective(src2, H, (imgSrc1.shape[1] + src2.shape[1], imgSrc1.shape[0] + src2.shape[0]))
+imgSrc2_warped = cv.warpPerspective(imgSrc2, H, (imgSrc1.shape[1] * 3, imgSrc1.shape[0] * 3))
 
-img_stitched = src2_warped.copy()
+img_stitched = imgSrc2_warped.copy()
 # img_stitchedの(0 ~ imgSrc1.width, 0 ~ imgSrc1.height) にimgSrc1を貼り付ける。 copyToみたいな？
 img_stitched[0:imgSrc1.shape[0], 0:imgSrc1.shape[1]] = imgSrc1
 
 
 # 特徴点を出力
-# cv.imwrite('drawKeypoints.jpg', cv.drawKeypoints(src2, kp2, None))
+# cv.imwrite('drawKeypoints.jpg', cv.drawKeypoints(imgSrc2, kp2, None))
 
 # マッチング結果を出力
-cv.imwrite('drawMatches.jpg', cv.drawMatches(src2, kp2, imgSrc1, kp1, goods, None))
+cv.imwrite('drawMatches.jpg', cv.drawMatches(imgSrc2, kp2, imgSrc1, kp1, goods, None))
 # 何故か出来ない
-# cv.imwrite('drawMatches.jpg', cv.drawMatches(imgSrc1, kp1, src2, kp2, goods, None))
+# cv.imwrite('drawMatches.jpg', cv.drawMatches(imgSrc1, kp1, imgSrc2, kp2, goods, None))
 
-# ホモグラフィ行列で移動したsrc2を出力
-cv.imwrite('drawsrc2_warped.jpg', src2_warped)
+# ホモグラフィ行列で移動したimgSrc2を出力
+cv.imwrite('drawimgSrc2_warped.jpg', imgSrc2_warped)
 
 # 結合結果を出力
 cv.imwrite('drawimg_stitched.jpg', img_stitched)
