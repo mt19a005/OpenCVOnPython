@@ -1,0 +1,60 @@
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture('srcMovie2.mp4')
+
+# 出力動画設定
+fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
+out = cv2.VideoWriter("output.avi", fourcc, 5.0, (1280,720))
+
+frame1 = cap.read()[1]
+frame2 = cap.read()[1]
+print(frame1.shape)
+
+while cap.isOpened():
+    # -   -   -   -   前処理    -   -   -   - #
+    # 差分
+    diff = cv2.absdiff(frame1, frame2)
+    # HSVのV　グレースケールよりも良い感じ
+    diffV = cv2.split(cv2.cvtColor(diff, cv2.COLOR_RGB2HSV))[2]
+    # メディアンフィルター（モルフォロジー変換のオープニングみたいな処理）
+    diffBlur = cv2.medianBlur(diffV, 5)
+    # 二値化
+    diffthresh = cv2.threshold(diffBlur, 5, 255, cv2.THRESH_BINARY)[1]
+    # 拡大
+    diffdilated = cv2.dilate(diffthresh, None, iterations=6)
+    kernel = np.ones((5,5),np.uint8)
+
+    # -   -   -   -   前処理出力    -   -   -   - #
+    cv2.imshow("diffV", diffV)
+    # cv2.imshow("diffBlur", diffBlur)
+    cv2.imshow("diffthresh", diffthresh)
+    # cv2.imshow("diffdilated", diffdilated)
+
+    # -   -   -   -   動体検出    -   -   -   - #
+    contours, _ = cv2.findContours(diffdilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        (x, y, w, h) = cv2.boundingRect(contour)
+
+        if cv2.contourArea(contour) < 900:
+            continue
+        # 矩形を描画
+        cv2.rectangle(frame1, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        # 動体検出
+        cv2.putText(frame1, "Detect Movement", (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
+                    1, (0, 0, 255), 3)
+    # cv2.drawContours(frame1, contours, -1, (0, 255, 0), 2)
+
+    image = cv2.resize(frame1, (1280,720))
+    # 動画出力
+    out.write(image)
+    cv2.imshow("MOG1", frame1)
+    frame1 = frame2
+    ret, frame2 = cap.read()
+
+    if cv2.waitKey(15) & 0xFF == ord('q'):
+        break
+
+cv2.destroyAllWindows()
+cap.release()
+out.release()
