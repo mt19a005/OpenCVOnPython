@@ -32,7 +32,7 @@ def get_images_and_labels(path):
             images.append(cascadeRoi)
             # ファイル名からラベルを取得
             labels.append(int(fileName[7:9]))
-            print(int(fileName[7:9]))
+            
             # ファイル名を配列に格納
             files.append(fileName)
             # テスト画像の結果出力　理由：テスト画像が不適切な可能性があるから。

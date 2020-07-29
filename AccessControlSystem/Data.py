@@ -1,4 +1,5 @@
-from enum import Enum
+import os
+
 
 # 名前 = [id, value]
 class Name():
