@@ -32,14 +32,10 @@ def get_images_and_labels(path):
             images.append(cascadeRoi)
             # ファイル名からラベルを取得
             labels.append(int(fileName[7:9]))
+            labels.append(re.search('[A-z]+', fileName).group())
             
             # ファイル名を配列に格納
             files.append(fileName)
-            # テスト画像の結果出力　理由：テスト画像が不適切な可能性があるから。
-            if(path == test_path):
-                cv2.rectangle(imgSrc, (x, y), (x+w, y+h), (0, 255, 0), thickness=2)
-                cv2.imwrite("./TestResult/cascade.png", imgSrc)
-                cv2.imwrite("./TestResult/cascadeRoi.png", cascadeRoi)
 
     return images, labels, files
 
@@ -60,6 +56,7 @@ recognizer = cv2.face.FisherFaceRecognizer_create()
 
 # トレーニング画像を取得
 images, labels, files = get_images_and_labels(train_path)
+print (labels)
 
 # トレーニング実施
 recognizer.train(images, np.array(labels))
