@@ -25,7 +25,6 @@ def get_images_and_labels(path):
         faces = faceCascade.detectMultiScale(imgSrc, scaleFactor=1.1, minNeighbors=2, minSize=(30, 30))
         # 検出した顔領域の処理
         for (x, y, w, h) in faces:
-
             # 顔領域を取得して200x200(pix)にリサイズ
             cascadeRoi = cv2.resize(imgSrc[y: y + h, x: x + w], (200, 200), interpolation=cv2.INTER_LINEAR)
             # 画像を配列に格納
